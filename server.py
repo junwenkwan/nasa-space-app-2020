@@ -13,7 +13,7 @@ import numpy as np
 app = Flask(__name__)
 weights_pth = './nn_weight/mlp_weight.pth'
 model = MLP(input_size=3, output_size=1)
-model.load_state_dict(torch.load(weights_pth))
+model.load_state_dict(torch.load(weights_pth, map_location=torch.device('cpu')))
 model.eval()
 
 def get_prediction(in_vector):
@@ -34,4 +34,4 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0',port=80)
