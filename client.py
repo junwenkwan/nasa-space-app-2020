@@ -1,10 +1,10 @@
 import requests
 import numpy as np
 
-arr = np.array([29.015749, 325.264507747156, 0.668088614940643])
-data = {'params': arr.tolist()}
 
-resp = requests.post("http://localhost:5000/predict",
+data = {'top_left_latlng': [-33.2,150], 'bottom_right_latlng': [-34.2,151], 'datetime': '2020-01-01' }
+
+resp = requests.post("http://127.0.0.1:5000/predict",
                      json=data)
 
 print(resp.json())
