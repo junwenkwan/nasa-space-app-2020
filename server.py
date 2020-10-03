@@ -11,6 +11,7 @@ from utils.utils import get_rainfall, get_solar_insolation, get_temperature
 import os
 import requests
 from skimage import io
+import shutil
 
 app = Flask(__name__)
 weights_pth = './nn_weight/mlp_weight.pth'
@@ -68,10 +69,14 @@ def update_assets():
 
         # Delete existing files
         for filename in os.listdir('./assets'):
-            print(filename)
             file_path = os.path.join('./assets', filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
 
         app.logger.info('Deleted existing files')    
         
@@ -104,6 +109,12 @@ def update_assets():
 
         app.logger.info('Rainfall data successfully downloaded')
         
+        # Download FIRMS
+        url = 'https://nrt3.modaps.eosdis.nasa.gov/api/v2/content/archives/FIRMS/noaa-20-viirs-c2/Australia_NewZealand/J1_VIIRS_C2_Australia_NewZealand_VJ114IMGTDL_NRT_2019338.txt'
+        cmd = 'wget -e robots=off -m -np -R .html,.tmp -nH --cut-dirs=4 --directory-prefix=\'./assets\' --header \'Authorization: Bearer 7BAC12AC-0536-11EB-AB4A-A082BEDF9A3A\' ' + url
+        os.system(cmd)
+
+        app.logger.info('FIRMS data successfully downloaded')
         status = 1
 
         return jsonify({'update_assets': status})
