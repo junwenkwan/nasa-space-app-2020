@@ -101,6 +101,4 @@ def get_rainfall(lat_arr, lng_arr, datetime):
     for lat, long in list(zip(lat_arr, lng_arr)):
         rainfall.append(df_rainfall.loc[round(lat, 1), round(long, 1)])
 
-    os.remove(filename)
-
     return rainfall
