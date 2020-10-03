@@ -24,7 +24,7 @@ def get_prediction(in_vector):
     in_vector =  Variable(in_vector).float()
     outputs = model.forward(in_vector)
     predicted = (outputs >= 0.755).float()
-    return predicted.cpu().numpy().tolist()
+    return predicted.cpu().numpy()
 
 @app.route('/predict', methods=['POST'])
 def predict():
