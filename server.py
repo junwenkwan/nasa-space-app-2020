@@ -12,6 +12,7 @@ import os
 import requests
 import cv2 
 from skimage import io
+import netCDF4 as nc
 
 app = Flask(__name__)
 weights_pth = './nn_weight/mlp_weight.pth'
@@ -59,10 +60,6 @@ def get_solar_insolation(lat_arr, lng_arr, datetime):
     index_labels = np.concatenate((np.flip(index_labels), -index_labels))
 
     url = 'https://neo.sci.gsfc.nasa.gov/archive/rgb/CERES_INSOL_D/CERES_INSOL_D_{}.PNG'.format(datetime)
-  
-    # If url (or data) doesn't exist, then use the previous url (url_old). 
-    # Otherwise, update url_old with current url for future use
-    # request = requests.get(url)
 
     # Retrive PNG using url
     img = io.imread(url)
@@ -91,6 +88,54 @@ def get_solar_insolation(lat_arr, lng_arr, datetime):
     
     return solar_insolation
 
+def get_rainfall(lat_arr, lng_arr, datetime):
+    rainfall = []
+
+    # Define column and index labels for renaming later
+    column_labels = np.around(np.arange(0.1,180.1,0.1), 1)
+    column_labels = np.concatenate((-np.flip(column_labels), column_labels))
+    index_labels = np.around(np.arange(0.1,90.1,0.1), 1)
+    index_labels = np.concatenate((np.flip(index_labels), -index_labels))
+
+    year, month, day = datetime.split('-')
+    parent_dir = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.06/{}/{}/'.format(year,month)
+
+    # Define name of the file containing rainfall
+    filename = '3B-DAY.MS.MRG.3IMERG.{}-S000000-E235959.V06.nc4'.format(datetime.replace('-', ''))
+
+    url = parent_dir + filename
+
+    cmd = 'wget --auth-no-challenge=on --user=kckhoo --password=\'NaSa929347\' --content-disposition ' + url
+    
+    # filename = wget.download(url,'')
+    os.system(cmd)
+    
+    # Retrive file
+    path_file = os.path.join('./',filename)
+    
+    ds = nc.Dataset(path_file)
+    
+    # Retrive rainfall array
+    arr_rainfall = np.rot90(ds['precipitationCal'][:].squeeze())
+
+    # Replace missing value in rainfall array with NaN
+    unmasked_arr_rainfall = arr_rainfall.data
+    unmasked_arr_rainfall[unmasked_arr_rainfall == -9999.9] = np.nan
+
+    # Convert numpy array to data frame
+    df_rainfall = pd.DataFrame(data=arr_rainfall)
+
+    # Rename index and column of the dataframe for the ease of accessing cell value
+    df_rainfall.columns = column_labels
+    df_rainfall.index = index_labels
+
+    for lat, long in list(zip(lat_arr, lng_arr)):
+        rainfall.append(df_rainfall.loc[round(lat, 1), round(long, 1)])
+
+    os.remove(filename)
+
+    return rainfall
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
@@ -115,7 +160,11 @@ def predict():
 
         temperature = get_temperature(lat_arr,lng_arr,datetime)
         solar_insolation = get_solar_insolation(lat_arr, lng_arr, datetime)
-
+        rainfall = get_rainfall(lat_arr, lng_arr, datetime)
+        print(temperature)
+        print(solar_insolation)
+        print(rainfall)
+        
         params = np.array([29.015749, 325.264507747156, 0.668088614940643])
         class_id = get_prediction(in_vector=params)
         return jsonify({'class_id': class_id})
