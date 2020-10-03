@@ -43,14 +43,20 @@ def predict():
         bottom_right_lat = bottom_right_latlng[0]
         bottom_right_lng = bottom_right_latlng[1]
 
-        threshold = 0.1
+        threshold = 0.2
         
         lat_arr = np.arange(top_left_lat, bottom_right_lat, -threshold)
         lng_arr = np.arange(top_left_lng, bottom_right_lng, threshold)
 
-        temperature = get_temperature(lat_arr,lng_arr,datetime)
-        solar_insolation = get_solar_insolation(lat_arr, lng_arr, datetime)
-        rainfall = get_rainfall(lat_arr, lng_arr, datetime)
+        coords_arr = []
+
+        for x in lat_arr:
+            for y in lng_arr:
+                coords_arr.append([round(x,1), round(y,1)])
+
+        temperature = get_temperature(coords_arr,datetime)
+        solar_insolation = get_solar_insolation(coords_arr, datetime)
+        rainfall = get_rainfall(coords_arr, datetime)
 
         results = []
         for i, j, k in list(zip(temperature, solar_insolation,rainfall)):

@@ -7,7 +7,7 @@ import cv2
 from skimage import io
 import netCDF4 as nc
 
-def get_temperature(lat_arr, lng_arr, datetime):
+def get_temperature(coords_arr, datetime):
     temperature = []
 
     # Define column and index labels for renaming later
@@ -25,12 +25,12 @@ def get_temperature(lat_arr, lng_arr, datetime):
     df_temperature.columns = column_labels
     df_temperature.index = index_labels
 
-    for lat, lng in list(zip(lat_arr, lng_arr)):
+    for lat, lng in coords_arr:
         temperature.append(df_temperature.loc[round(lat, 1), round(lng, 1)])
 
     return temperature
 
-def get_solar_insolation(lat_arr, lng_arr, datetime):
+def get_solar_insolation(coords_arr, datetime):
     solar_insolation = []
 
     # Define column and index labels for renaming later
@@ -60,7 +60,7 @@ def get_solar_insolation(lat_arr, lng_arr, datetime):
     df_solar_insolation.columns = column_labels
     df_solar_insolation.index = index_labels
 
-    for lat, long in list(zip(lat_arr, lng_arr)):
+    for lat, long in coords_arr:
         # Round latitude and longitude to nearest 0.25
         lat_new = round(lat*4)/4
         long_new = round(long*4)/4
@@ -69,7 +69,7 @@ def get_solar_insolation(lat_arr, lng_arr, datetime):
     
     return solar_insolation
 
-def get_rainfall(lat_arr, lng_arr, datetime):
+def get_rainfall(coords_arr, datetime):
     rainfall = []
 
     # Define column and index labels for renaming later
@@ -98,7 +98,7 @@ def get_rainfall(lat_arr, lng_arr, datetime):
     df_rainfall.columns = column_labels
     df_rainfall.index = index_labels
 
-    for lat, long in list(zip(lat_arr, lng_arr)):
+    for lat, long in coords_arr:
         rainfall.append(df_rainfall.loc[round(lat, 1), round(long, 1)])
 
     return rainfall
