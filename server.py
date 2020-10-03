@@ -51,9 +51,13 @@ def predict():
         solar_insolation = get_solar_insolation(lat_arr, lng_arr, datetime)
         rainfall = get_rainfall(lat_arr, lng_arr, datetime)
 
-        params = np.array([29.015749, 325.264507747156, 0.668088614940643])
-        class_id = get_prediction(in_vector=params)
-        return jsonify({'class_id': class_id})
+        results = []
+        for i, j, k in list(zip(temperature, solar_insolation,rainfall)):
+            params = np.array([i,j,k])
+            class_id = get_prediction(in_vector=params)
+            results.append(class_id)
+
+        return jsonify({'class_id': results})
 
 @app.route('/update_assets', methods=['POST'])
 def update_assets():
