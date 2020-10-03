@@ -12,6 +12,7 @@ import os
 import requests
 from skimage import io
 import shutil
+import pandas as pd
 
 app = Flask(__name__)
 weights_pth = './nn_weight/mlp_weight.pth'
@@ -125,15 +126,28 @@ def update_assets():
 
         return jsonify({'update_assets': status})
 
-@app.route('/get_firms_data', methods=['POST'])
-def get_firms_data():
+@app.route('/process_firms_data', methods=['POST'])
+def process_firms_data():
     filename = 'J1_VIIRS_C2_Australia_NewZealand_VJ114IMGTDL_NRT_2019338.txt'
     dir = os.path.join('./assets','FIRMS','noaa-20-viirs-c2','Australia_NewZealand')
 
-    try:
-        return send_from_directory(dir, filename=filename)
-    except Exception as e:
-        return str(e)
+    csv_path = os.path.join(dir,filename)
+
+    df = pd.read_csv(csv_path, skiprows = 1,header = None)
+
+    # Select every 100th row
+    df = df.iloc[::100, :]
+    
+    latitude = df.iloc[:,0].values.tolist()
+    longitude = df.iloc[:,1].values.tolist()
+    bright_ti4 = df.iloc[:,2].values.tolist()
+    track = df.iloc[:,4].values.tolist()
+    date = df.iloc[:,5].values.tolist()
+    time = df.iloc[:,6].values.tolist()
+    confidence = df.iloc[:,8].values.tolist()
+    
+    return jsonify({'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, 
+                    'track': track, 'date': date, 'time':time, 'confidence': confidence })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)
