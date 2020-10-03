@@ -2,7 +2,7 @@ import json
 from torchvision import models
 import torchvision.transforms as transforms
 from PIL import Image
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file, send_from_directory
 from model.mlp import MLP
 import torch
 from torch.autograd import Variable
@@ -118,6 +118,16 @@ def update_assets():
         status = 1
 
         return jsonify({'update_assets': status})
+
+@app.route('/get_firms_data', methods=['POST'])
+def get_firms_data():
+    filename = 'J1_VIIRS_C2_Australia_NewZealand_VJ114IMGTDL_NRT_2019338.txt'
+    dir = os.path.join('./assets','FIRMS','noaa-20-viirs-c2','Australia_NewZealand')
+
+    try:
+        return send_from_directory(dir, filename=filename)
+    except Exception as e:
+        return str(e)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)
