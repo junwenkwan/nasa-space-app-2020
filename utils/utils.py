@@ -16,10 +16,10 @@ def get_temperature(lat_arr, lng_arr, datetime):
     index_labels = np.around(np.arange(0.1,90.1,0.1), 1)
     index_labels = np.concatenate((np.flip(index_labels), -index_labels))
 
-    # Define url for csv file containing land surface temperature
-    nasa_url = 'https://neo.sci.gsfc.nasa.gov/archive/csv/MOD_LSTD_D/MOD_LSTD_D_{}.CSV.gz'.format(datetime)
+    filename = 'MOD_LSTD_D_{}.CSV'.format(datetime)
+    filename = os.path.join('./assets',filename)
 
-    df_temperature = pd.read_csv(nasa_url, compression='gzip', header=None)
+    df_temperature = pd.read_csv(filename, compression='gzip', header=None)
 
     # Rename index and column of the dataframe for the ease of accessing cell value
     df_temperature.columns = column_labels
@@ -39,10 +39,11 @@ def get_solar_insolation(lat_arr, lng_arr, datetime):
     index_labels = np.around(np.arange(0.25,90.25,0.25), 2)
     index_labels = np.concatenate((np.flip(index_labels), -index_labels))
 
-    url = 'https://neo.sci.gsfc.nasa.gov/archive/rgb/CERES_INSOL_D/CERES_INSOL_D_{}.PNG'.format(datetime)
+    filename = 'CERES_INSOL_D_{}.PNG'.format(datetime)
+    filename = os.path.join('./assets',filename)
 
     # Retrive PNG using url
-    img = io.imread(url)
+    img = io.imread(filename)
 
     # Remove alpha channel of PNG image
     if len(img.shape) > 2 and img.shape[2] == 4:
@@ -77,23 +78,11 @@ def get_rainfall(lat_arr, lng_arr, datetime):
     index_labels = np.around(np.arange(0.1,90.1,0.1), 1)
     index_labels = np.concatenate((np.flip(index_labels), -index_labels))
 
-    year, month, day = datetime.split('-')
-    parent_dir = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.06/{}/{}/'.format(year,month)
-
     # Define name of the file containing rainfall
     filename = '3B-DAY.MS.MRG.3IMERG.{}-S000000-E235959.V06.nc4'.format(datetime.replace('-', ''))
-
-    url = parent_dir + filename
-
-    cmd = 'wget --auth-no-challenge=on --user=kckhoo --password=\'NaSa929347\' --content-disposition ' + url
-    
-    # filename = wget.download(url,'')
-    os.system(cmd)
-    
-    # Retrive file
-    path_file = os.path.join('./',filename)
-    
-    ds = nc.Dataset(path_file)
+    filename = os.path.join('./assets',filename)
+  
+    ds = nc.Dataset(filename)
     
     # Retrive rainfall array
     arr_rainfall = np.rot90(ds['precipitationCal'][:].squeeze())
