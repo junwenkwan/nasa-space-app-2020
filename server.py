@@ -7,8 +7,10 @@ from model.mlp import MLP
 import torch
 from torch.autograd import Variable
 import numpy as np
-
 from utils.utils import get_rainfall, get_solar_insolation, get_temperature
+import os
+import requests
+from skimage import io
 
 app = Flask(__name__)
 weights_pth = './nn_weight/mlp_weight.pth'
@@ -53,6 +55,54 @@ def predict():
         class_id = get_prediction(in_vector=params)
         return jsonify({'class_id': class_id})
 
+@app.route('/update_assets', methods=['POST'])
+def update_assets():
+    if request.method == 'POST':
+        data = request.json
+
+        datetime = data['datetime']
+
+        # Delete existing files
+        for filename in os.listdir('./assets'):
+            print(filename)
+            file_path = os.path.join('./assets', filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+
+        app.logger.info('Deleted existing files')    
+        
+        # Download temperature data
+        temperature_url = 'https://neo.sci.gsfc.nasa.gov/archive/csv/MOD_LSTD_D/MOD_LSTD_D_{}.CSV.gz'.format(datetime)
+        temperature_filename = os.path.join('./assets',temperature_url.split("/")[-1].split('.')[-3]+'.CSV')
+        with open(temperature_filename, "wb") as f:
+            r = requests.get(temperature_url)
+            f.write(r.content)
+
+        app.logger.info('Land temperature data successfully downloaded')
+
+        # Download solar_insolation data
+        solar_url = 'https://neo.sci.gsfc.nasa.gov/archive/rgb/CERES_INSOL_D/CERES_INSOL_D_{}.PNG'.format(datetime)
+        img = io.imread(solar_url)  
+        io.imsave(os.path.join('./assets',solar_url.split('/')[-1]), img) 
+
+        app.logger.info('Solar insolation data successfully downloaded')
+
+        # Download rainfall data
+        year, month, day = datetime.split('-')
+        parent_dir = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.06/{}/{}/'.format(year,month)
+
+        filename = '3B-DAY.MS.MRG.3IMERG.{}-S000000-E235959.V06.nc4'.format(datetime.replace('-', ''))
+
+        rainfall_url = parent_dir + filename
+        cmd = 'wget --auth-no-challenge=on --user=kckhoo --password=\'NaSa929347\' --content-disposition --directory-prefix=\'./assets\' ' + rainfall_url
+
+        os.system(cmd)
+
+        app.logger.info('Rainfall data successfully downloaded')
+        
+        status = 1
+
+        return jsonify({'update_assets': status})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)
