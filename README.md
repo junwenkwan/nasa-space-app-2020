@@ -49,4 +49,9 @@ ssh -i "the-universe-academy.pem" ubuntu@ec2-3-133-101-18.us-east-2.compute.amaz
 ```bash
 python3 -m venv venv && source venv/bin/activate
 ```
+## Front-End Demo
+An example of the web app is shown below. The user is able to select two points on the Google map to form a bounding box to detect wildfires in the specific region. Red fire icon indicates the real time Visible Infrared Imaging Radiometer Suite (VIIRS) ground truth retrieved from [NASA EARTHDATA](https://earthdata.nasa.gov/earth-observation-data/near-real-time/download-nrt-data/viirs-nrt). On the other hand, the triangular warning sign indicates the prediction of our neural network on the area of interest.
 
+<div align="center">
+<img src="./teaser/teaser.png"/><br>
+</div>
