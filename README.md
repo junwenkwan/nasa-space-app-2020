@@ -18,13 +18,23 @@ python3 -m venv venv && source venv/bin/activate
 ```bash
 POST http://127.0.0.1:5000/update_assets
 {'datetime': 'YYYY-MM-DD' }
+
+Response:
+{'update_assets': 1}
 ```
 
 ```bash
 POST http://127.0.0.1:5000/predict
-{'top_left_latlng': [x1,y1], 'bottom_right_latlng': [x2,y2], 'datetime': 'YYYY-MM-DD' }
+{'top_left_lat_lng': [x1,y1], 'bottom_right_lat_lng': [x2,y2], 'datetime': 'YYYY-MM-DD' }
+
+Response:
+{'class_id': list, 'latitude': list(latitude), 'longitude': list(longitude)}
 ```
 
 ```bash
 POST http://127.0.0.1:5000/process_firms_data
+
+Response:
+{'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, \
+ 'track': track, 'date': date, 'time':time, 'confidence': confidence }
 ```
