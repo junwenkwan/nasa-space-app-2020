@@ -132,6 +132,15 @@ def process_firms_data():
         index = data['index']
         year, month, day = date.split('-')
 
+        # Delete previous FIRMS dir
+        for filename in os.listdir('./assets'):
+            file_path = os.path.join('./assets', filename)
+            try:
+                if os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
+
         # Download FIRMS data
         url = 'https://nrt3.modaps.eosdis.nasa.gov/api/v2/content/archives/FIRMS/noaa-20-viirs-c2/{}/J1_VIIRS_C2_{}_VJ114IMGTDL_NRT_{}{}.txt'.format(country, country, year, index)
         cmd = 'wget -e robots=off -m -np -R .html,.tmp -nH --cut-dirs=4 --directory-prefix=\'./assets\' --header \'Authorization: Bearer 7BAC12AC-0536-11EB-AB4A-A082BEDF9A3A\' ' + url
