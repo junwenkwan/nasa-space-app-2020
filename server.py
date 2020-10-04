@@ -32,17 +32,17 @@ def predict():
     if request.method == 'POST':
         data = request.json
 
-        # top_left_latlng and bottom_right_latlng is expected to be a list in the format of ([lat, lng])
-        top_left_latlng = data['top_left_latlng'] 
-        bottom_right_latlng = data['bottom_right_latlng'] 
+        # top_left_lat_lng and bottom_right_lat_lng is expected to be a list in the format of ([lat, lng])
+        top_left_lat_lng = data['top_left_lat_lng'] 
+        bottom_right_lat_lng = data['bottom_right_lat_lng'] 
 
         # date is expected to be a string
         date = data['date']
 
-        top_left_lat = top_left_latlng[0]
-        top_left_lng = top_left_latlng[1]
-        bottom_right_lat = bottom_right_latlng[0]
-        bottom_right_lng = bottom_right_latlng[1]
+        top_left_lat = top_left_lat_lng[0]
+        top_left_lng = top_left_lat_lng[1]
+        bottom_right_lat = bottom_right_lat_lng[0]
+        bottom_right_lng = bottom_right_lat_lng[1]
 
         threshold = 0.2
         
