@@ -41,5 +41,6 @@ Response:
 
 ## Train Neural Network
 ```bash
-python3 training/training_script.py --weights-path ./nn_weight/new.pth --csv-path ./dataset/master_dataset.csv 
+python3 training/training_script.py --weights-path ./nn_weight/new.pth \
+                                    --csv-path ./dataset/master_dataset.csv 
 ```
