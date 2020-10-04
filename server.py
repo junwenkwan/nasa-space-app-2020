@@ -67,7 +67,7 @@ def predict():
 
         latitude, longitude = zip(*coords_arr)
 
-        return jsonify({'class_id': results, 'latitude':list(latitude), 'longitude':list(longitude)})
+        return jsonify({'class_id': results, 'latitude': list(latitude), 'longitude': list(longitude)})
 
 @app.route('/update_assets', methods=['POST'])
 def update_assets():
