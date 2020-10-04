@@ -37,7 +37,7 @@ def predict():
         bottom_right_latlng = data['bottom_right_latlng'] 
 
         # date is expected to be a string
-        datetime = data['datetime']
+        date = data['date']
 
         top_left_lat = top_left_latlng[0]
         top_left_lng = top_left_latlng[1]
@@ -55,9 +55,9 @@ def predict():
             for y in lng_arr:
                 coords_arr.append([round(x,1), round(y,1)])
 
-        temperature = get_temperature(coords_arr,datetime)
-        solar_insolation = get_solar_insolation(coords_arr, datetime)
-        rainfall = get_rainfall(coords_arr, datetime)
+        temperature = get_temperature(coords_arr,date)
+        solar_insolation = get_solar_insolation(coords_arr, date)
+        rainfall = get_rainfall(coords_arr, date)
 
         results = []
         for i, j, k in list(zip(temperature, solar_insolation,rainfall)):
@@ -74,7 +74,7 @@ def update_assets():
     if request.method == 'POST':
         data = request.json
 
-        datetime = data['datetime']
+        date = data['date']
 
         # Delete existing files
         for filename in os.listdir('./assets'):
@@ -90,7 +90,7 @@ def update_assets():
         app.logger.info('Deleted existing files')    
         
         # Download temperature data
-        temperature_url = 'https://neo.sci.gsfc.nasa.gov/archive/csv/MOD_LSTD_D/MOD_LSTD_D_{}.CSV.gz'.format(datetime)
+        temperature_url = 'https://neo.sci.gsfc.nasa.gov/archive/csv/MOD_LSTD_D/MOD_LSTD_D_{}.CSV.gz'.format(date)
         temperature_filename = os.path.join('./assets',temperature_url.split("/")[-1].split('.')[-3]+'.CSV')
         with open(temperature_filename, "wb") as f:
             r = requests.get(temperature_url)
@@ -99,17 +99,17 @@ def update_assets():
         app.logger.info('Land temperature data successfully downloaded')
 
         # Download solar_insolation data
-        solar_url = 'https://neo.sci.gsfc.nasa.gov/archive/rgb/CERES_INSOL_D/CERES_INSOL_D_{}.PNG'.format(datetime)
+        solar_url = 'https://neo.sci.gsfc.nasa.gov/archive/rgb/CERES_INSOL_D/CERES_INSOL_D_{}.PNG'.format(date)
         img = io.imread(solar_url)  
         io.imsave(os.path.join('./assets',solar_url.split('/')[-1]), img) 
 
         app.logger.info('Solar insolation data successfully downloaded')
 
         # Download rainfall data
-        year, month, day = datetime.split('-')
+        year, month, day = date.split('-')
         parent_dir = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGDF.06/{}/{}/'.format(year,month)
 
-        filename = '3B-DAY.MS.MRG.3IMERG.{}-S000000-E235959.V06.nc4'.format(datetime.replace('-', ''))
+        filename = '3B-DAY.MS.MRG.3IMERG.{}-S000000-E235959.V06.nc4'.format(date.replace('-', ''))
 
         rainfall_url = parent_dir + filename
         cmd = 'wget --auth-no-challenge=on --user=kckhoo --password=\'NaSa929347\' --content-disposition --directory-prefix=\'./assets\' ' + rainfall_url
