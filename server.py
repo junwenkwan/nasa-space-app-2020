@@ -118,38 +118,47 @@ def update_assets():
 
         app.logger.info('Rainfall data successfully downloaded')
         
-        # Download FIRMS
-        url = 'https://nrt3.modaps.eosdis.nasa.gov/api/v2/content/archives/FIRMS/noaa-20-viirs-c2/Australia_NewZealand/J1_VIIRS_C2_Australia_NewZealand_VJ114IMGTDL_NRT_2019338.txt'
-        cmd = 'wget -e robots=off -m -np -R .html,.tmp -nH --cut-dirs=4 --directory-prefix=\'./assets\' --header \'Authorization: Bearer 7BAC12AC-0536-11EB-AB4A-A082BEDF9A3A\' ' + url
-        os.system(cmd)
-
-        app.logger.info('FIRMS data successfully downloaded')
         status = 1
 
         return jsonify({'update_assets': status})
 
 @app.route('/process_firms_data', methods=['POST'])
 def process_firms_data():
-    filename = 'J1_VIIRS_C2_Australia_NewZealand_VJ114IMGTDL_NRT_2019338.txt'
-    dir = os.path.join('./assets','FIRMS','noaa-20-viirs-c2','Australia_NewZealand')
+    if request.method == 'POST':
+        data = request.json
+        
+        country = data['country']
+        date = data['date']
+        index = data['index']
+        year, month, day = date.split('-')
 
-    csv_path = os.path.join(dir,filename)
+        # Download FIRMS data
+        url = 'https://nrt3.modaps.eosdis.nasa.gov/api/v2/content/archives/FIRMS/noaa-20-viirs-c2/{}/J1_VIIRS_C2_{}_VJ114IMGTDL_NRT_{}{}.txt'.format(country, country, year, index)
+        cmd = 'wget -e robots=off -m -np -R .html,.tmp -nH --cut-dirs=4 --directory-prefix=\'./assets\' --header \'Authorization: Bearer 7BAC12AC-0536-11EB-AB4A-A082BEDF9A3A\' ' + url
+        os.system(cmd)
 
-    df = pd.read_csv(csv_path, skiprows = 1,header = None)
+        app.logger.info('FIRMS data successfully downloaded')
 
-    # Select every 100th row
-    df = df.iloc[::100, :]
-    
-    latitude = df.iloc[:,0].values.tolist()
-    longitude = df.iloc[:,1].values.tolist()
-    bright_ti4 = df.iloc[:,2].values.tolist()
-    track = df.iloc[:,4].values.tolist()
-    date = df.iloc[:,5].values.tolist()
-    time = df.iloc[:,6].values.tolist()
-    confidence = df.iloc[:,8].values.tolist()
-    
-    return jsonify({'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, 
-                    'track': track, 'date': date, 'time':time, 'confidence': confidence })
+        filename = 'J1_VIIRS_C2_{}_VJ114IMGTDL_NRT_{}{}.txt'.format(country, year, index)
+        dir = os.path.join('./assets','FIRMS','noaa-20-viirs-c2','Australia_NewZealand')
+
+        csv_path = os.path.join(dir,filename)
+
+        df = pd.read_csv(csv_path, skiprows = 1,header = None)
+
+        # Select every 100th row
+        df = df.iloc[::100, :]
+        
+        latitude = df.iloc[:,0].values.tolist()
+        longitude = df.iloc[:,1].values.tolist()
+        bright_ti4 = df.iloc[:,2].values.tolist()
+        track = df.iloc[:,4].values.tolist()
+        date = df.iloc[:,5].values.tolist()
+        time = df.iloc[:,6].values.tolist()
+        confidence = df.iloc[:,8].values.tolist()
+        
+        return jsonify({'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, 
+                        'track': track, 'date': date, 'time':time, 'confidence': confidence })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)
