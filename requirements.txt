@@ -1,0 +1,9 @@
+torch
+torchvision
+numpy
+netCDF4
+matplotlib
+Flask
+pandas
+Pillow
+scikit-image
