@@ -38,3 +38,8 @@ Response:
 {'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, \
  'track': track, 'date': date, 'time':time, 'confidence': confidence }
 ```
+
+## Train Neural Network
+```bash
+python3 training/training_script.py --weights-path ./nn_weight/new.pth --csv-path ./dataset/master_dataset.csv 
+```
