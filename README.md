@@ -33,7 +33,8 @@ Response:
 
 ```bash
 POST http://127.0.0.1:5000/process_firms_data
-
+{'date': 'YYYY-MM-DD', 'index': int, 'country': 'Australia_NewZealand'}
+ 
 Response:
 {'latitude': latitude, 'longitude': longitude, 'bright_ti4': bright_ti4, \
  'track': track, 'date': date, 'time':time, 'confidence': confidence }
