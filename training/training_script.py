@@ -103,9 +103,6 @@ def do_test(model, device, testloader, weights_pth):
             cls = Variable(cls).float().cuda()
             outputs = model(inputs)
             predicted = (outputs >= 0.755).float()
-            print('----------')
-            print(predicted.flatten())
-            print(cls)
             total += cls.size(0)
             correct += (predicted.flatten() == cls).sum().item()
 
