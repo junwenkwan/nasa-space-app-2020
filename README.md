@@ -1,5 +1,11 @@
 # nasa-space-app-back-end
-Front-end: [https://github.com/junwenkwan/nasa-space-app-front-end](https://github.com/junwenkwan/nasa-space-app-front-end)
+Submission page: 
+
+[https://2020.spaceappschallenge.org/challenges/confront/spot-fire-3/teams/the-universe-academy/project](https://2020.spaceappschallenge.org/challenges/confront/spot-fire-3/teams/the-universe-academy/project)
+
+Front-end: 
+
+[https://github.com/junwenkwan/nasa-space-app-front-end](https://github.com/junwenkwan/nasa-space-app-front-end)
 
 ## Remote Procedure Call (RPC)
 To update assets on the server
